@@ -3,15 +3,25 @@
  */
 'use strict';
 
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
+import config from './environment';
 
-var _stringify = require('babel-runtime/core-js/json/stringify');
+// When the user disconnects.. perform this
+function onDisconnect(socket) {
+}
 
-var _stringify2 = _interopRequireDefault(_stringify);
+// When the user connects.. perform this
+function onConnect(socket) {
+  // When the client emits 'info', this listens and executes
+  socket.on('info', data => {
+    socket.log(JSON.stringify(data, null, 2));
+  });
 
-exports.default = function (socketio) {
+  // Insert sockets below
+  require('../api/thing/thing.socket').register(socket);
+
+}
+
+export default function(socketio) {
   // socket.io (v1.x.x) is powered by debug.
   // In order to see all the debug output, set DEBUG (in server/config/local.env.js) to including the desired scope.
   //
@@ -27,23 +37,18 @@ exports.default = function (socketio) {
   //   handshake: true
   // }));
 
-  socketio.on('connection', function (socket) {
-    socket.address = socket.request.connection.remoteAddress + ':' + socket.request.connection.remotePort;
+  socketio.on('connection', function(socket) {
+    socket.address = socket.request.connection.remoteAddress +
+      ':' + socket.request.connection.remotePort;
 
     socket.connectedAt = new Date();
 
-    socket.log = function () {
-      var _console;
-
-      for (var _len = arguments.length, data = Array(_len), _key = 0; _key < _len; _key++) {
-        data[_key] = arguments[_key];
-      }
-
-      (_console = console).log.apply(_console, ['SocketIO ' + socket.nsp.name + ' [' + socket.address + ']'].concat(data));
+    socket.log = function(...data) {
+      console.log(`SocketIO ${socket.nsp.name} [${socket.address}]`, ...data);
     };
 
     // Call onDisconnect.
-    socket.on('disconnect', function () {
+    socket.on('disconnect', () => {
       onDisconnect(socket);
       socket.log('DISCONNECTED');
     });
@@ -52,25 +57,4 @@ exports.default = function (socketio) {
     onConnect(socket);
     socket.log('CONNECTED');
   });
-};
-
-var _environment = require('./environment');
-
-var _environment2 = _interopRequireDefault(_environment);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-// When the user disconnects.. perform this
-function onDisconnect(socket) {}
-
-// When the user connects.. perform this
-function onConnect(socket) {
-  // When the client emits 'info', this listens and executes
-  socket.on('info', function (data) {
-    socket.log((0, _stringify2.default)(data, null, 2));
-  });
-
-  // Insert sockets below
-  require('../api/thing/thing.socket').register(socket);
 }
-//# sourceMappingURL=socketio.js.map
