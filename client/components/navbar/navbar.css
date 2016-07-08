@@ -1,0 +1,13 @@
+.navbar{
+	display:block;
+	height:100vh;
+	width:200px!important;
+	background:yellow!important;
+}
+.navbar-collapse{
+	display: block!important;
+	width: 100%!important;
+}
+nav{
+	
+}
